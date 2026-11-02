@@ -47,28 +47,6 @@ Inspect any GGUF:
 ./info.sh --model models/eto-tiny.gguf
 ```
 
-Prepare the balanced English corpus and train Eto with a resumable checkpoint:
-
-```bash
-python3 data/prepare_corpus.py --output .training/english_training.txt
-./trainer.sh --data .training/english_training.txt --out models/eto.gguf --name Eto \
-             --steps 1000 --checkpoint .training/checkpoint.bin
-./trainer.sh --data .training/english_training.txt --out models/eto.gguf --name Eto \
-             --steps 1000 --resume .training/checkpoint.bin
-```
-
-Each invocation runs the requested number of additional steps. Checkpoints
-include model weights and AdamW state and are only accepted with matching model
-dimensions, batch size, seed, and training data. The `Train Eto`
-GitHub Actions workflow runs on relevant pushes or manual dispatch, restores its
-previous checkpoint from the Actions cache, and uploads the trained GGUF as an
-artifact. It uses balanced excerpts from the included Project Gutenberg books,
-the grammar and English conversation corpora, and the short story. The corpus
-builder documents excluded, separately licensed files in `data/SOURCES.md`.
-This is not a complete English-language dataset. The byte-level trainer and
-tiny model are educational and cannot learn broad English fluency from this
-small corpus.
-
 Verify the trainer's analytic backprop:
 
 ```bash

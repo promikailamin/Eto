@@ -10,8 +10,6 @@ import eto.tokenizer.ByteTokenizer;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Random;
 
@@ -30,10 +28,7 @@ public final class Trainer {
             int ffn,
             float lr,
             long seed,
-            float std,
-            Path checkpoint,
-            Path resume,
-            int checkpointEvery) {
+            float std) {
     }
 
     private Trainer() {
@@ -58,26 +53,15 @@ public final class Trainer {
 
         ModelConfig cfg = new ModelConfig(tok.vocabSize(), o.dim, o.layers, o.heads, o.ffn, o.ctx, 1e-5f, 10000f);
         TinyLlama model = new TinyLlama(cfg);
-        model.initRandom(new Random(o.seed), o.std);
+        Random rng = new Random(o.seed);
+        model.initRandom(rng, o.std);
         AdamW adam = AdamW.defaults();
         List<TensorParam> params = model.params();
-        byte[] dataHash = sha256(bytes);
-        int startStep = 0;
-        if (o.resume != null) {
-            startStep = TrainingCheckpoint.load(o.resume, model, o.batch, o.seed, dataHash, params);
-            adam.restoreStepCount(startStep);
-        }
-        if (o.checkpoint != null && o.checkpointEvery <= 0) {
-            throw new IllegalArgumentException("checkpoint interval must be positive");
-        }
 
         System.out.println("data      : " + o.data + " (" + bytes.length + " bytes, " + corpus.length + " tokens)");
         System.out.println("model     : " + cfg);
         System.out.println("parameters: " + String.format("%,d", cfg.paramCount()));
         System.out.println("steps     : " + o.steps + "  batch=" + o.batch + "  lr=" + o.lr);
-        if (o.resume != null) {
-            System.out.println("resumed   : " + o.resume + " (optimizer step " + startStep + ")");
-        }
         System.out.println();
 
         long t0 = System.nanoTime();
@@ -88,8 +72,6 @@ public final class Trainer {
         float lastLoss = 0f;
 
         for (int step = 0; step < o.steps; step++) {
-            int globalStep = Math.addExact(startStep, step);
-            Random rng = new Random(o.seed ^ (0x9E3779B97F4A7C15L * (globalStep + 1L)));
             adam.zeroGrad(params);
             double batchLoss = 0.0;
             for (int b = 0; b < o.batch; b++) {
@@ -120,10 +102,6 @@ public final class Trainer {
                 System.out.printf("step %5d/%d  loss %.4f  lr %.6f  %.1fs%n",
                         step + 1, o.steps, lastLoss, lr, secs);
             }
-            if (o.checkpoint != null && ((step + 1) % o.checkpointEvery == 0 || step == o.steps - 1)) {
-                TrainingCheckpoint.save(o.checkpoint, model, o.batch, o.seed, dataHash,
-                        adam.stepCount(), params);
-            }
         }
 
         ModelIO.saveGguf(model, tok, o.out, o.name);
@@ -133,13 +111,5 @@ public final class Trainer {
         System.out.printf("saved %s (%.2f MiB, %.1fs, final loss %.4f)%n",
                 o.out, size / 1048576.0, secs, lastLoss);
         System.out.println("run it with: ./runner.sh --model " + o.out);
-    }
-
-    private static byte[] sha256(byte[] bytes) {
-        try {
-            return MessageDigest.getInstance("SHA-256").digest(bytes);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 is unavailable", e);
-        }
     }
 }
