@@ -1,0 +1,95 @@
+name: Train Eto
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/train.yml'
+      - 'data/**'
+      - '!data/mc.txt'
+      - '!data/mc_qa.txt'
+      - '!data/eto-vocab.txt'
+      - 'src/eto/**'
+      - 'trainer.sh'
+      - 'build.sh'
+  workflow_dispatch:
+    inputs:
+      steps:
+        description: Additional optimizer steps for this run
+        required: true
+        type: number
+        default: 1000
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eto-training-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Prepare balanced training corpus
+        run: python3 data/prepare_corpus.py --output .training/english_training.txt
+
+      - name: Restore previous training checkpoint
+        uses: actions/cache/restore@v4
+        with:
+          path: .training/checkpoint.bin
+          key: eto-checkpoint-${{ runner.os }}-${{ github.ref_name }}-${{ hashFiles('.training/english_training.txt') }}-${{ github.run_id }}
+          restore-keys: |
+            eto-checkpoint-${{ runner.os }}-${{ github.ref_name }}-${{ hashFiles('.training/english_training.txt') }}-
+
+      - name: Build and train
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .training
+          resume_args=()
+          if [[ -f .training/checkpoint.bin ]]; then
+            resume_args+=(--resume .training/checkpoint.bin)
+          fi
+          ./build.sh
+          ./trainer.sh \
+            --data .training/english_training.txt \
+            --out models/eto.gguf \
+            --name Eto \
+            --steps "${{ github.event_name == 'workflow_dispatch' && inputs.steps || 1000 }}" \
+            --batch 4 \
+            --ctx 64 \
+            --dim 64 \
+            --layers 2 \
+            --heads 4 \
+            --ffn 128 \
+            --checkpoint .training/checkpoint.bin \
+            --checkpoint-every 100 \
+            "${resume_args[@]}"
+
+      - name: Save checkpoint for the next run
+        if: always() && hashFiles('.training/checkpoint.bin') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: .training/checkpoint.bin
+          key: eto-checkpoint-${{ runner.os }}-${{ github.ref_name }}-${{ hashFiles('.training/english_training.txt') }}-${{ github.run_id }}
+
+      - name: Upload trained model
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eto-model
+          path: models/eto.gguf
+          if-no-files-found: error
+          retention-days: 14

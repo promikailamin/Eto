@@ -1,0 +1,78 @@
+English Grammar: A Practical Learning Corpus
+
+English is a language used to describe people, places, actions, ideas, questions, and relationships. A sentence usually contains a subject and a predicate. The subject tells who or what the sentence is about. The predicate says what the subject does, experiences, or is. In the sentence "The careful student reads a book," the student is the subject and reads a book is the predicate.
+
+Words have jobs in sentences. A noun names a person, place, thing, or idea: teacher, river, London, pencil, kindness. A pronoun can stand in for a noun: I, you, she, it, we, they, who. A verb expresses an action or state: walk, think, become, seem. An adjective describes a noun: a quiet room, three green apples. An adverb can describe a verb, adjective, or another adverb: speak softly, very bright, quite slowly. A preposition shows a relationship: under the table, after lunch, near the station. A conjunction joins words or clauses: bread and butter; I called, but nobody answered. An interjection expresses a reaction: Oh, that is surprising!
+
+The usual order of a simple English statement is subject, verb, and object. "Mira opened the window" has the subject Mira, the verb opened, and the object the window. An indirect object can appear before the direct object: "Mira gave her friend a note." Adjectives commonly come before the nouns they describe, while articles and other determiners usually come before adjectives: the old bridge, a useful idea, several small boxes.
+
+English nouns may be singular or plural. Many plurals add s or es: lamp and lamps, class and classes. Some common plurals change form: child and children, person and people, mouse and mice. A possessive noun often uses an apostrophe: the teacher's desk; the teachers' desks. A pronoun must agree with the noun it refers to in number and meaning: "The keys are here. They are on the shelf."
+
+Subject and verb agree in number in the present tense. Use a singular verb with a singular subject: "The dog runs." Use a plural verb with a plural subject: "The dogs run." The verb be has special forms: I am, you are, he is, we are, they are. In a sentence beginning with there, find the true subject: "There is one answer" and "There are two answers." A phrase between a subject and verb does not change their agreement: "The box of old letters is in the attic."
+
+Verbs describe time and aspect. The simple present describes habits and general facts: "Ravi walks to work" and "Water freezes below zero degrees Celsius." The present progressive describes an action in progress: "Ravi is walking home." The simple past describes a completed past event: "They visited the museum." The past progressive describes an action that was in progress: "They were visiting when the rain began." The present perfect connects a past event with the present: "I have finished the report." The future can be expressed with will or be going to: "We will leave soon" and "We are going to leave soon."
+
+Regular past-tense verbs often end in ed: clean, cleaned; arrive, arrived. Some common verbs are irregular: go, went, gone; write, wrote, written; bring, brought, brought; see, saw, seen. After a modal verb such as can, could, may, might, must, should, or will, use the base form: "She can swim," not "She can swims." In a question or negative sentence with do, use the base form as well: "Did they call?" and "They did not call."
+
+Articles help identify nouns. Use a before a consonant sound and an before a vowel sound: a university, an hour, a useful tool, an orange. Use the when the reader can identify a particular person or thing: "Please close the door." Use a or an when introducing one nonspecific countable noun: "A visitor left a message." Many plural and uncountable nouns take no article when discussed generally: "Books can carry ideas" and "Water is essential." English article choice depends on sound and meaning, not only spelling.
+
+Pronouns should make their references clear. Subject pronouns include I, he, she, we, and they: "They arrived early." Object pronouns include me, him, her, us, and them: "The guide welcomed us." Possessive forms include my, your, his, her, our, their, mine, and theirs. Use who for a subject and whom for an object in formal writing: "Who called?" and "Whom did you invite?" In everyday English, who is also common as an object. A reflexive pronoun refers back to the subject: "Nora taught herself to knit."
+
+Adjectives and adverbs are not interchangeable. An adjective modifies a noun: "It was a careful answer." An adverb often modifies an action: "She answered carefully." After linking verbs such as be, seem, look, feel, and become, an adjective usually describes the subject: "The soup smells delicious" and "I feel calm." Comparatives compare two things: smaller, more useful. Superlatives compare a group: smallest, most useful. Do not combine forms: say "more careful" or "carefuller" only where standard usage permits the latter, and say "most useful," not "most more useful."
+
+Prepositions often form phrases that add information about place, time, direction, or relationship. A book may be on a desk, under a chair, beside a lamp, or inside a bag. An event may happen at noon, on Friday, or in October. A traveler may walk to the station, travel through a tunnel, or return from the coast. Some prepositions are chosen by convention: interested in a subject, responsible for a task, depend on a friend. Read the whole phrase because a preposition's meaning changes with context.
+
+A clause contains a subject and a verb. An independent clause can stand alone: "The train arrived." A dependent clause cannot stand alone: "because the road was closed." Join clauses carefully. A comma and a coordinating conjunction can join two independent clauses: "The road was closed, so we took the train." A semicolon can join closely related independent clauses: "The road was closed; we took the train." A dependent clause at the beginning is usually followed by a comma: "Because the road was closed, we took the train." When it follows the main clause, a comma is often unnecessary: "We took the train because the road was closed."
+
+Common conjunctions include and, but, or, nor, for, yet, and so. They can join equal parts: "Asha reads and writes." Subordinating conjunctions such as because, although, when, if, while, and since introduce dependent clauses. "Although the task was difficult, the team completed it." Relative pronouns introduce clauses that describe nouns: "The book that you lent me is excellent." A restrictive clause identifies which person or thing is meant and normally has no commas: "The cyclist who won the race thanked the team." A nonrestrictive clause adds extra information and is set off with commas: "My bicycle, which is nearly new, needs a repair."
+
+Questions often use an auxiliary verb before the subject: "Are you ready?" "Did the guests arrive?" "Can she help?" A question word may come first: who, what, when, where, why, or how. In a question about the subject, ordinary question inversion may not be needed: "Who opened the window?" In a question about the object, use an auxiliary: "What did Lee open?" Indirect questions use statement word order: "Could you tell me where the library is?" not "where is the library."
+
+Negation commonly uses not with an auxiliary verb: "I do not agree," "She is not waiting," and "We have not eaten." In standard formal English, avoid unintended double negatives: use "I did not see anything" or "I saw nothing," rather than "I did not see nothing." Contractions combine words in informal writing: do not becomes don't, we are becomes we're, and they have becomes they've. An apostrophe marks omitted letters in a contraction, but not ordinary plurals: books, not book's.
+
+Punctuation makes sentence structure easier to read. A period ends a statement. A question mark ends a direct question. An exclamation mark can show strong feeling, but frequent use weakens its effect. A comma separates items in a list: "We bought rice, beans, and fruit." A comma can follow an introductory phrase: "After the meeting, we went outside." A comma splice incorrectly joins two complete sentences with only a comma. Repair it with a period, a semicolon, or a comma plus a conjunction.
+
+Quotation marks enclose spoken or quoted words: "I will return tomorrow," Sam said. In American English, commas and periods are usually placed inside closing quotation marks. A colon can introduce an explanation or list: "Bring three things: water, a map, and a notebook." A dash can mark a sharp break in thought, while parentheses contain an aside. Use punctuation to express the relationship between ideas, not merely to mark pauses in speech.
+
+Capitalize the first word of a sentence, the pronoun I, proper names, languages, and the names of days and months: English, Monday, April, Ada Lovelace. Do not capitalize ordinary seasons or general job titles unless they are part of a name or formal title. Titles of books and other works follow a chosen style consistently. Capital letters help identify names and sentence beginnings; they are not decoration.
+
+Some words are often confused. Their shows possession; there points to a place or introduces a sentence; they're means they are. Your shows possession; you're means you are. Its is possessive; it's means it is or it has. To is a preposition or infinitive marker; too means also or excessively; two is the number. Then usually concerns time or sequence; than makes a comparison. Affect is commonly a verb meaning influence; effect is commonly a noun meaning result. Context helps select the right word.
+
+Choose precise words and keep each sentence focused. Prefer "The committee approved the plan" to "The plan was approved by the committee" when the actor matters. Passive voice is still useful when the actor is unknown or less important: "The package was delivered this morning." Keep pronouns close to clear references. Avoid a long chain of clauses when two sentences would be easier to understand. Vary sentence length, but make every sentence complete and readable.
+
+Editing examples:
+Incorrect: She don't enjoy cold mornings.
+Correct: She doesn't enjoy cold mornings.
+
+Incorrect: The list of names are on the desk.
+Correct: The list of names is on the desk.
+
+Incorrect: We arrived late, the doors were already closed.
+Correct: We arrived late, and the doors were already closed.
+
+Incorrect: He asked me where was the station.
+Correct: He asked me where the station was.
+
+Incorrect: Its a good idea to bring you're notebook.
+Correct: It's a good idea to bring your notebook.
+
+Incorrect: The teacher gave the students an advice.
+Correct: The teacher gave the students some advice.
+
+Incorrect: Although the weather was cold. We continued walking.
+Correct: Although the weather was cold, we continued walking.
+
+Incorrect: Each of the answers have a reason.
+Correct: Each of the answers has a reason.
+
+Practice sentences:
+The new neighbors planted flowers beside the front steps.
+When the final bell rang, the students packed their books and left quietly.
+My brother has lived in three cities, but he still calls this town home.
+If you save a little money each week, you can buy the bicycle by summer.
+The letter that arrived this morning contains the information we requested.
+Neither the map nor the written directions were easy to follow.
+The room was bright, warm, and filled with the smell of fresh bread.
+Please tell me which train stops near the university.
+Although the first experiment failed, the careful notes helped the team improve it.
+Good writing is clear enough to understand and specific enough to remember.

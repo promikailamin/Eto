@@ -23,6 +23,17 @@ public final class AdamW {
         return new AdamW(0.9f, 0.99f, 1e-8f, 0.01f, 1.0f);
     }
 
+    public int stepCount() {
+        return step;
+    }
+
+    public void restoreStepCount(int step) {
+        if (step < 0) {
+            throw new IllegalArgumentException("optimizer step cannot be negative");
+        }
+        this.step = step;
+    }
+
     public void zeroGrad(List<TensorParam> params) {
         for (TensorParam p : params) {
             java.util.Arrays.fill(p.g(), 0f);
