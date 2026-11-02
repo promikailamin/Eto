@@ -2,9 +2,9 @@
 
 `prepare_corpus.py` builds the deterministic training text used by the local
 commands and the GitHub Actions workflow. It strips Project Gutenberg framing,
-samples long books across their length, repeats the grammar corpus, removes
-duplicate chat turns, and changes the generated chat identity from Ultron to
-Eto.
+samples long texts across their length, repeats the grammar corpus, removes
+duplicate chat turns, extracts word entries from the tab-separated vocabulary,
+and changes Ultron speaker/name references to Eto.
 
 The Project Gutenberg texts are public-domain works in the United States:
 
@@ -23,8 +23,10 @@ The Project Gutenberg texts are public-domain works in the United States:
 | `wp.txt` | War and Peace | 2600 |
 
 `grammar.txt` and `chat.txt` are supplied/generated local corpora;
-`english_grammar.txt` is an original starter text. The builder intentionally
-excludes `mc.txt` and `mc_qa.txt`: their headers identify Minecraft Wiki content
-under CC BY-NC-SA 3.0, which is not included in this general English training
-run. `eto-vocab.txt` is a token-ID list, not prose, and is also excluded. The
-source files are left unchanged.
+`english_grammar.txt` is an original starter text. `mc.txt` and `mc_qa.txt`
+contain Minecraft Wiki material under CC BY-NC-SA 3.0. Their source files are
+preserved unchanged, and the prepared corpus/model must be treated as
+noncommercial share-alike material. See [MINECRAFT-NOTICE.md](MINECRAFT-NOTICE.md)
+for attribution and usage terms. Obtain separate permission before any
+commercial use. `eto-vocab.txt` is included only after token IDs and special
+symbols are removed; its word list receives a single low-weight section.

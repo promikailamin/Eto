@@ -7,9 +7,6 @@ on:
     paths:
       - '.github/workflows/train.yml'
       - 'data/**'
-      - '!data/mc.txt'
-      - '!data/mc_qa.txt'
-      - '!data/eto-vocab.txt'
       - 'src/eto/**'
       - 'trainer.sh'
       - 'build.sh'
@@ -77,6 +74,33 @@ jobs:
             --checkpoint .training/checkpoint.bin \
             --checkpoint-every 100 \
             "${resume_args[@]}"
+
+      - name: Evaluate English and Minecraft outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          questions=(
+            "English: Define a noun."
+            "English: What is a verb?"
+            "English: Fix this: She don't run."
+            "English: Dogs runs or dogs run?"
+            "English: Your or you're: You are ready."
+            "English: An hour or a hour?"
+            "English: Define a comma splice."
+            "English: What is the past tense of go?"
+            "Minecraft: What is Minecraft?"
+            "Minecraft: Java or Bedrock, name one difference."
+            "Minecraft: What does redstone do?"
+            "Minecraft: What is a crafting table for?"
+            "Minecraft: What is the Nether?"
+            "Minecraft: What is a villager?"
+            "Minecraft: What is Survival mode?"
+            "Minecraft: How do you craft a pickaxe?"
+          )
+          for index in "${!questions[@]}"; do
+            printf '\n[%02d/16] %s\n' "$((index + 1))" "${questions[index]}"
+            ./generate.sh --model models/eto.gguf --prompt "${questions[index]}" --tokens 48 --greedy
+          done
 
       - name: Save checkpoint for the next run
         if: always() && hashFiles('.training/checkpoint.bin') != ''

@@ -3,6 +3,7 @@
 
 import argparse
 import re
+import textwrap
 from pathlib import Path
 
 
@@ -22,13 +23,8 @@ BOOKS = (
 BOOK_BYTE_LIMIT = 256 * 1024
 GRAMMAR_REPEATS = 16
 CHAT_REPEATS = 4
-CHAT_TOPIC = re.compile(
-    r"\b(?:minecraft|creeper|crafting table|redstone|nether|bedrock edition|"
-    r"ender dragon|villager|enderman)\b",
-    re.IGNORECASE,
-)
+MINECRAFT_QA_REPEATS = 2
 ULTRON = re.compile(r"\bultron\b", re.IGNORECASE)
-MINECRAFT = re.compile(r"\bminecraft\b", re.IGNORECASE)
 GUTENBERG_START = re.compile(
     r"^\*{3}\s*START OF (?:THE )?PROJECT GUTENBERG EBOOK[^\n]*\n?",
     re.IGNORECASE | re.MULTILINE,
@@ -56,7 +52,11 @@ def paragraphs(text: str) -> list[str]:
 
 
 def balanced_book(path: Path) -> str:
-    parts = paragraphs(read_text(path))
+    return balanced_text(read_text(path))
+
+
+def balanced_text(text: str) -> str:
+    parts = paragraphs(text)
     total_bytes = sum(len(part.encode("utf-8")) + 2 for part in parts)
     stride = max(1, (total_bytes + BOOK_BYTE_LIMIT - 1) // BOOK_BYTE_LIMIT)
     selected = parts[::stride]
@@ -74,8 +74,6 @@ def cleaned_chat(path: Path) -> str:
         end = starts[index + 1].start() if index + 1 < len(starts) else len(text)
         turn = text[match.start():end]
         turn = re.sub(r"(?m)^=+[^\n]*=+\s*$", "", turn)
-        if CHAT_TOPIC.search(turn):
-            continue
         turn = ULTRON.sub("Eto", turn).strip()
         key = " ".join(turn.split()).casefold()
         if key and key not in seen:
@@ -86,12 +84,34 @@ def cleaned_chat(path: Path) -> str:
 
 def source_block(title: str, text: str) -> str:
     text = ULTRON.sub("Eto", text)
-    text = MINECRAFT.sub("Mara", text)
     text = re.sub(r"[ \t]+\n", "\n", text)
     text = re.sub(r"\n{3,}", "\n\n", text).strip()
     if not text:
         return ""
     return f"Source: {title}\n\n{text}"
+
+
+def minecraft_body(path: Path) -> str:
+    text = read_text(path)
+    heading = re.search(r"(?m)^={3,}[^\n]*={3,}\s*$", text)
+    return text[heading.end():] if heading else text
+
+
+def cleaned_vocabulary(path: Path) -> str:
+    words = []
+    seen = set()
+    for line in read_text(path).splitlines():
+        token_id, separator, token = line.partition("\t")
+        if not separator or not token_id.isdecimal():
+            continue
+        token = ULTRON.sub("Eto", token.strip())
+        if re.fullmatch(r"[^\W\d_]+(?:['’][^\W\d_]+)*", token, re.UNICODE) is None:
+            continue
+        key = token.casefold()
+        if key not in seen:
+            seen.add(key)
+            words.append(token)
+    return textwrap.fill(" ".join(words), width=100, break_long_words=False)
 
 
 def main() -> None:
@@ -117,6 +137,26 @@ def main() -> None:
     if chat_path.is_file():
         block = source_block("English conversation", cleaned_chat(chat_path))
         pieces.extend([block] * CHAT_REPEATS)
+
+    minecraft_path = args.data_dir / "mc.txt"
+    if minecraft_path.is_file():
+        block = source_block(
+            "Minecraft Wiki excerpts (CC BY-NC-SA 3.0)",
+            balanced_text(minecraft_body(minecraft_path)),
+        )
+        pieces.append(block)
+
+    minecraft_qa_path = args.data_dir / "mc_qa.txt"
+    if minecraft_qa_path.is_file():
+        block = source_block(
+            "Minecraft questions and answers (CC BY-NC-SA 3.0)",
+            balanced_text(cleaned_chat(minecraft_qa_path)),
+        )
+        pieces.extend([block] * MINECRAFT_QA_REPEATS)
+
+    vocabulary_path = args.data_dir / "eto-vocab.txt"
+    if vocabulary_path.is_file():
+        pieces.append(source_block("Eto vocabulary", cleaned_vocabulary(vocabulary_path)))
 
     sample_path = args.data_dir / "sample.txt"
     if sample_path.is_file():

@@ -63,11 +63,12 @@ dimensions, batch size, seed, and training data. The `Train Eto`
 GitHub Actions workflow runs on relevant pushes or manual dispatch, restores its
 previous checkpoint from the Actions cache, and uploads the trained GGUF as an
 artifact. It uses balanced excerpts from the included Project Gutenberg books,
-the grammar and English conversation corpora, and the short story. The corpus
-builder documents excluded, separately licensed files in `data/SOURCES.md`.
-This is not a complete English-language dataset. The byte-level trainer and
-tiny model are educational and cannot learn broad English fluency from this
-small corpus.
+grammar and conversation corpora, Minecraft knowledge, and the Eto vocabulary.
+The Minecraft sources are CC BY-NC-SA 3.0; treat the resulting corpus and
+trained artifact as noncommercial share-alike material. See
+`data/MINECRAFT-NOTICE.md` before redistributing or using the artifact. This is
+not a complete English-language dataset. The byte-level trainer and tiny model
+are educational and cannot learn broad English fluency from this corpus.
 
 Verify the trainer's analytic backprop:
 
