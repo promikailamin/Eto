@@ -16,7 +16,7 @@ on:
         description: Additional optimizer steps for this run
         required: true
         type: number
-        default: 1000
+        default: 50000
 
 permissions:
   contents: read
@@ -46,9 +46,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: .training/checkpoint.bin
-          key: eto-checkpoint-${{ runner.os }}-${{ github.ref_name }}-${{ hashFiles('.training/english_training.txt') }}-${{ github.run_id }}
+          key: eto-checkpoint-v2-${{ runner.os }}-${{ github.ref_name }}-ctx256-${{ hashFiles('.training/english_training.txt') }}-${{ github.run_id }}
           restore-keys: |
-            eto-checkpoint-${{ runner.os }}-${{ github.ref_name }}-${{ hashFiles('.training/english_training.txt') }}-
+            eto-checkpoint-v2-${{ runner.os }}-${{ github.ref_name }}-ctx256-${{ hashFiles('.training/english_training.txt') }}-
 
       - name: Build and train
         shell: bash
@@ -64,9 +64,9 @@ jobs:
             --data .training/english_training.txt \
             --out models/eto.gguf \
             --name Eto \
-            --steps "${{ github.event_name == 'workflow_dispatch' && inputs.steps || 1000 }}" \
+            --steps "${{ github.event_name == 'workflow_dispatch' && inputs.steps || 50000 }}" \
             --batch 4 \
-            --ctx 64 \
+            --ctx 256 \
             --dim 64 \
             --layers 2 \
             --heads 4 \
@@ -80,26 +80,26 @@ jobs:
         run: |
           set -euo pipefail
           questions=(
-            "English: Define a noun."
-            "English: What is a verb?"
-            "English: Fix this: She don't run."
-            "English: Dogs runs or dogs run?"
-            "English: Your or you're: You are ready."
-            "English: An hour or a hour?"
-            "English: Define a comma splice."
-            "English: What is the past tense of go?"
-            "Minecraft: What is Minecraft?"
-            "Minecraft: Java or Bedrock, name one difference."
-            "Minecraft: What does redstone do?"
-            "Minecraft: What is a crafting table for?"
-            "Minecraft: What is the Nether?"
-            "Minecraft: What is a villager?"
-            "Minecraft: What is Survival mode?"
-            "Minecraft: How do you craft a pickaxe?"
+            $'user: what is a noun\n\nEto:'
+            $'user: what is a verb\n\nEto:'
+            $'user: fix this: she do not run\n\nEto:'
+            $'user: should i say dogs run or dogs runs\n\nEto:'
+            $'user: what is the difference between your and you are\n\nEto:'
+            $'user: should i say an hour or a hour\n\nEto:'
+            $'user: what is a comma splice\n\nEto:'
+            $'user: what is the past tense of go\n\nEto:'
+            $'user: what is minecraft\n\nEto:'
+            $'user: what is java edition\n\nEto:'
+            $'user: what does redstone do\n\nEto:'
+            $'user: what is a crafting table used for\n\nEto:'
+            $'user: what is the nether\n\nEto:'
+            $'user: what is a villager\n\nEto:'
+            $'user: what is survival mode\n\nEto:'
+            $'user: how do you craft a pickaxe\n\nEto:'
           )
           for index in "${!questions[@]}"; do
             printf '\n[%02d/16] %s\n' "$((index + 1))" "${questions[index]}"
-            ./generate.sh --model models/eto.gguf --prompt "${questions[index]}" --tokens 48 --greedy
+            ./generate.sh --model models/eto.gguf --prompt "${questions[index]}" --ctx 256 --tokens 96 --temp 0.7 --seed "$index"
           done
 
       - name: Save checkpoint for the next run
@@ -107,7 +107,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: .training/checkpoint.bin
-          key: eto-checkpoint-${{ runner.os }}-${{ github.ref_name }}-${{ hashFiles('.training/english_training.txt') }}-${{ github.run_id }}
+          key: eto-checkpoint-v2-${{ runner.os }}-${{ github.ref_name }}-ctx256-${{ hashFiles('.training/english_training.txt') }}-${{ github.run_id }}
 
       - name: Upload trained model
         if: success()

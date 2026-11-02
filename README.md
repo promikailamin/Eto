@@ -52,9 +52,9 @@ Prepare the balanced English corpus and train Eto with a resumable checkpoint:
 ```bash
 python3 data/prepare_corpus.py --output .training/english_training.txt
 ./trainer.sh --data .training/english_training.txt --out models/eto.gguf --name Eto \
-             --steps 1000 --checkpoint .training/checkpoint.bin
+             --steps 50000 --ctx 256 --checkpoint .training/checkpoint.bin
 ./trainer.sh --data .training/english_training.txt --out models/eto.gguf --name Eto \
-             --steps 1000 --resume .training/checkpoint.bin
+             --steps 50000 --ctx 256 --resume .training/checkpoint.bin
 ```
 
 Each invocation runs the requested number of additional steps. Checkpoints
@@ -87,7 +87,7 @@ The trainer implements a small **llama‑style decoder** from scratch:
 - AdamW, warmup + cosine learning‑rate decay, gradient clipping
 - analytic backprop for every operation (checked numerically)
 
-Default demo: 2 layers, 64 embedding width, 4 heads, 128 FFN width, 64‑token
+Default demo: 2 layers, 64 embedding width, 4 heads, 128 FFN width, 64-token
 context, 115,264 parameters, 0.45 MiB GGUF. Training on the included 3 KB story
 for 500 steps takes about 25 seconds on a CPU.
 
