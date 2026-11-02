@@ -20,10 +20,17 @@ BOOKS = (
     "tom.txt",
     "wp.txt",
 )
-BOOK_BYTE_LIMIT = 256 * 1024
-GRAMMAR_REPEATS = 16
+BOOK_BYTE_LIMIT = 48 * 1024
+GRAMMAR_REPEATS = 8
 CHAT_REPEATS = 4
-MINECRAFT_QA_REPEATS = 2
+EXTRA_QA_REPEATS = 6
+SMALLTALK_REPEATS = 12
+EXTERNAL_CHAT_REPEATS = 1
+STORY_BYTE_LIMIT = 8 * 1024 * 1024
+SHAKESPEARE_BYTE_LIMIT = 256 * 1024
+MINECRAFT_QA_REPEATS = 1
+MINECRAFT_QA_BYTE_LIMIT = 300 * 1024
+MINECRAFT_WIKI_BYTE_LIMIT = 200 * 1024
 ULTRON = re.compile(r"\bultron\b", re.IGNORECASE)
 GUTENBERG_START = re.compile(
     r"^\*{3}\s*START OF (?:THE )?PROJECT GUTENBERG EBOOK[^\n]*\n?",
@@ -55,12 +62,12 @@ def balanced_book(path: Path) -> str:
     return balanced_text(read_text(path))
 
 
-def balanced_text(text: str) -> str:
+def balanced_text(text: str, limit: int = BOOK_BYTE_LIMIT) -> str:
     parts = paragraphs(text)
     total_bytes = sum(len(part.encode("utf-8")) + 2 for part in parts)
-    stride = max(1, (total_bytes + BOOK_BYTE_LIMIT - 1) // BOOK_BYTE_LIMIT)
+    stride = max(1, (total_bytes + limit - 1) // limit)
     selected = parts[::stride]
-    while len(selected) > 1 and sum(len(part.encode("utf-8")) + 2 for part in selected) > BOOK_BYTE_LIMIT:
+    while len(selected) > 1 and sum(len(part.encode("utf-8")) + 2 for part in selected) > limit:
         selected.pop()
     return "\n\n".join(selected)
 
@@ -80,6 +87,20 @@ def cleaned_chat(path: Path) -> str:
             seen.add(key)
             unique_turns.append(turn)
     return "\n\n".join(unique_turns)
+
+
+def extra_qa(path: Path) -> str:
+    """Expand data/eto_extra_qa.tsv: 'question || variant<TAB>answer' per line."""
+    turns = []
+    for line in read_text(path).splitlines():
+        questions, separator, answer = line.partition("\t")
+        if not separator or not answer.strip():
+            continue
+        for question in questions.split("||"):
+            question = question.strip()
+            if question:
+                turns.append(f"user: {question}\nEto: {answer.strip()}")
+    return "\n\n".join(turns)
 
 
 def source_block(title: str, text: str) -> str:
@@ -138,11 +159,32 @@ def main() -> None:
         block = source_block("English conversation", cleaned_chat(chat_path))
         pieces.extend([block] * CHAT_REPEATS)
 
+    extra_path = args.data_dir / "eto_extra_qa.tsv"
+    if extra_path.is_file():
+        block = source_block("English conversation", extra_qa(extra_path))
+        pieces.extend([block] * EXTRA_QA_REPEATS)
+
+    smalltalk_path = args.data_dir / "eto_smalltalk.tsv"
+    if smalltalk_path.is_file():
+        block = source_block("English conversation", extra_qa(smalltalk_path))
+        pieces.extend([block] * SMALLTALK_REPEATS)
+
+    # Large public datasets converted by fetch_datasets.py / convert_external.py.
+    external = args.data_dir / "external"
+    for path in sorted(external.glob("chat_*.txt")):
+        block = source_block("English conversation", read_text(path))
+        pieces.extend([block] * EXTERNAL_CHAT_REPEATS)
+    for path in sorted(external.glob("stories_*.txt")):
+        pieces.append(source_block("Short stories", balanced_text(read_text(path), STORY_BYTE_LIMIT)))
+    shakespeare = external / "shakespeare.txt"
+    if shakespeare.is_file():
+        pieces.append(source_block("Plays", balanced_text(read_text(shakespeare), SHAKESPEARE_BYTE_LIMIT)))
+
     minecraft_path = args.data_dir / "mc.txt"
     if minecraft_path.is_file():
         block = source_block(
             "Minecraft Wiki excerpts (CC BY-NC-SA 3.0)",
-            balanced_text(minecraft_body(minecraft_path)),
+            balanced_text(minecraft_body(minecraft_path), MINECRAFT_WIKI_BYTE_LIMIT),
         )
         pieces.append(block)
 
@@ -150,7 +192,7 @@ def main() -> None:
     if minecraft_qa_path.is_file():
         block = source_block(
             "Minecraft questions and answers (CC BY-NC-SA 3.0)",
-            balanced_text(cleaned_chat(minecraft_qa_path)),
+            balanced_text(cleaned_chat(minecraft_qa_path), MINECRAFT_QA_BYTE_LIMIT),
         )
         pieces.extend([block] * MINECRAFT_QA_REPEATS)
 

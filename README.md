@@ -52,9 +52,11 @@ Prepare the balanced English corpus and train Eto with a resumable checkpoint:
 ```bash
 python3 data/prepare_corpus.py --output .training/english_training.txt
 ./trainer.sh --data .training/english_training.txt --out models/eto.gguf --name Eto \
-             --steps 50000 --ctx 256 --checkpoint .training/checkpoint.bin
+             --steps 15000 --ctx 256 --dim 96 --layers 3 --heads 4 --ffn 256 \
+             --checkpoint .training/checkpoint.bin
 ./trainer.sh --data .training/english_training.txt --out models/eto.gguf --name Eto \
-             --steps 50000 --ctx 256 --resume .training/checkpoint.bin
+             --steps 15000 --ctx 256 --dim 96 --layers 3 --heads 4 --ffn 256 \
+             --resume .training/checkpoint.bin
 ```
 
 Each invocation runs the requested number of additional steps. Checkpoints
@@ -225,3 +227,25 @@ GGML/llama.cpp specification and reference dequantizers:
 
 The implementations in `src/eto/gguf/` are independent Java ports; no C code,
 jars, or native libraries are linked or invoked.
+
+
+## Fixes for "random text" output
+
+- **Repetition penalty**: byte-level models now default to `--repeat 1.0`. The old 1.1
+  penalty hits every letter in the recent window and scrambles the text.
+- **Stop sequences**: with the `Eto` chat format, generation stops at the end of the
+  reply (`\n\n`, `\nuser:`) instead of running on into invented dialogue.
+- **Training windows**: half of the training windows now start at a `user:` turn with a
+  BOS token, matching exactly what the chat runner feeds the model.
+- **Conversation data**: the corpus is now mostly everyday conversation and simple
+  stories rather than novels. `data/fetch_datasets.py` downloads Alpaca (short turns),
+  ChatterBot, DailyDialog and TinyStories; `convert_external.py` turns them into
+  `user:` / `Eto:` turns that fit the 256-byte context. The converted Alpaca and
+  ChatterBot files are already in `data/external/`; DailyDialog and TinyStories are
+  fetched by the GitHub workflow (they need open internet). `data/eto_smalltalk.tsv`
+  adds hand-written small talk. Books are capped at 48 KB each.
+- **Model size**: 128 wide, 4 layers (about 1M parameters). Run the workflow several
+  times; each run resumes from the checkpoint. Expect fluent-looking, simple English,
+  not a general assistant: a 1M-parameter byte-level model has hard limits.
+
+Refresh the data yourself with `python3 data/fetch_datasets.py`.

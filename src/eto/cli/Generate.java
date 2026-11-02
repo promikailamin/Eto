@@ -23,14 +23,14 @@ public final class Generate {
         int ctx = a.getInt("ctx", 0);
         boolean noBos = a.flag("no-bos");
         float temp = a.flag("greedy") ? 0f : a.getFloat("temp", 0.8f);
-        Generator.Params p = new Generator.Params(
-                temp,
-                a.getInt("top-k", 40),
-                a.getFloat("top-p", 0.95f),
-                a.getFloat("repeat", 1.1f),
-                a.getLong("seed", 42));
 
         try (LlamaModel model = LlamaModel.open(path)) {
+            Generator.Params p = new Generator.Params(
+                    temp,
+                    a.getInt("top-k", 40),
+                    a.getFloat("top-p", 0.95f),
+                    a.getFloat("repeat", model.tokenizer.vocabSize() <= 300 ? 1.0f : 1.1f),
+                    a.getLong("seed", 42));
             if (ctx <= 0) {
                 ctx = model.cfg.ctxLen;
             }
@@ -57,7 +57,7 @@ public final class Generate {
                   --temp F        temperature, 0 = greedy (default 0.8)
                   --top-k N       top-k sampling (default 40)
                   --top-p F       nucleus sampling (default 0.95)
-                  --repeat F      repetition penalty (default 1.1)
+                  --repeat F      repetition penalty (default 1.1; 1.0 for byte-level models)
                   --seed N        RNG seed (default 42)
                   --greedy        shortcut for --temp 0
                   --no-bos        do not add BOS

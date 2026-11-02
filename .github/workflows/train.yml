@@ -7,6 +7,7 @@ on:
     paths:
       - '.github/workflows/train.yml'
       - 'data/**'
+      - '!data/external/raw/**'
       - 'src/eto/**'
       - 'trainer.sh'
       - 'build.sh'
@@ -16,7 +17,7 @@ on:
         description: Additional optimizer steps for this run
         required: true
         type: number
-        default: 50000
+        default: 6000
 
 permissions:
   contents: read
@@ -39,6 +40,9 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Download public conversation and story datasets (optional)
+        run: python3 data/fetch_datasets.py || true
+
       - name: Prepare balanced training corpus
         run: python3 data/prepare_corpus.py --output .training/english_training.txt
 
@@ -46,9 +50,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: .training/checkpoint.bin
-          key: eto-checkpoint-v2-${{ runner.os }}-${{ github.ref_name }}-ctx256-${{ hashFiles('.training/english_training.txt') }}-${{ github.run_id }}
+          key: eto-checkpoint-v4-${{ runner.os }}-${{ github.ref_name }}-ctx256-${{ hashFiles('.training/english_training.txt') }}-${{ github.run_id }}
           restore-keys: |
-            eto-checkpoint-v2-${{ runner.os }}-${{ github.ref_name }}-ctx256-${{ hashFiles('.training/english_training.txt') }}-
+            eto-checkpoint-v4-${{ runner.os }}-${{ github.ref_name }}-ctx256-${{ hashFiles('.training/english_training.txt') }}-
 
       - name: Build and train
         shell: bash
@@ -64,13 +68,13 @@ jobs:
             --data .training/english_training.txt \
             --out models/eto.gguf \
             --name Eto \
-            --steps "${{ github.event_name == 'workflow_dispatch' && inputs.steps || 50000 }}" \
+            --steps "${{ github.event_name == 'workflow_dispatch' && inputs.steps || 6000 }}" \
             --batch 4 \
             --ctx 256 \
-            --dim 64 \
-            --layers 2 \
+            --dim 128 \
+            --layers 4 \
             --heads 4 \
-            --ffn 128 \
+            --ffn 384 \
             --checkpoint .training/checkpoint.bin \
             --checkpoint-every 100 \
             "${resume_args[@]}"
@@ -80,26 +84,22 @@ jobs:
         run: |
           set -euo pipefail
           questions=(
+            "hello"
+            "how are you"
+            "what is your name"
+            "tell me a story"
+            "i am sad"
+            "what do you like to do"
+            "can you help me"
             "what is a noun"
-            "what is a verb"
-            "fix this: she do not run"
-            "should i say dogs run or dogs runs"
-            "what is the difference between your and you are"
-            "should i say an hour or a hour"
-            "what is a comma splice"
-            "what is the past tense of go"
             "what is minecraft"
-            "what is java edition"
-            "what does redstone do"
-            "what is a crafting table used for"
-            "what is the nether"
-            "what is a villager"
-            "what is survival mode"
-            "how do you craft a pickaxe"
+            "tell me a joke"
+            "why is the sky blue"
+            "good night"
           )
           for index in "${!questions[@]}"; do
-            printf '\n[%02d/16] %s\n' "$((index + 1))" "${questions[index]}"
-            ./runner.sh --model models/eto.gguf --prompt "${questions[index]}" --ctx 256 --tokens 96 --temp 0.7 --seed "$index"
+            printf '\n[%02d/12] %s\n' "$((index + 1))" "${questions[index]}"
+            ./runner.sh --model models/eto.gguf --prompt "${questions[index]}" --ctx 256 --tokens 96 --temp 0.5 --seed "$index"
           done
 
       - name: Save checkpoint for the next run
@@ -107,7 +107,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: .training/checkpoint.bin
-          key: eto-checkpoint-v2-${{ runner.os }}-${{ github.ref_name }}-ctx256-${{ hashFiles('.training/english_training.txt') }}-${{ github.run_id }}
+          key: eto-checkpoint-v4-${{ runner.os }}-${{ github.ref_name }}-ctx256-${{ hashFiles('.training/english_training.txt') }}-${{ github.run_id }}
 
       - name: Upload trained model
         if: success()

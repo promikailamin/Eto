@@ -80,6 +80,12 @@ public final class Trainer {
         }
         System.out.println();
 
+        // Chat turns start with "user:" at the beginning of a line. At inference the prompt
+        // always starts with BOS followed by such a turn, so half of the training windows
+        // are aligned to a turn start (BOS + turn) instead of a random byte offset.
+        int[] turnStarts = findTurnStarts(corpus);
+        System.out.println("turn starts: " + turnStarts.length);
+
         long t0 = System.nanoTime();
         int window = o.ctx;
         int[] batchTokens = new int[window];
@@ -93,8 +99,18 @@ public final class Trainer {
             adam.zeroGrad(params);
             double batchLoss = 0.0;
             for (int b = 0; b < o.batch; b++) {
-                int start = rng.nextInt(corpus.length - window);
-                System.arraycopy(corpus, start, batchTokens, 0, window);
+                if (turnStarts.length > 0 && rng.nextBoolean()) {
+                    int start = turnStarts[rng.nextInt(turnStarts.length)];
+                    batchTokens[0] = tok.bosId();
+                    int n = Math.min(window - 1, corpus.length - start);
+                    System.arraycopy(corpus, start, batchTokens, 1, n);
+                    for (int i = n + 1; i < window; i++) {
+                        batchTokens[i] = tok.eosId();
+                    }
+                } else {
+                    int start = rng.nextInt(corpus.length - window);
+                    System.arraycopy(corpus, start, batchTokens, 0, window);
+                }
                 batchLoss += model.lossAndBackward(batchTokens);
             }
             float invBatch = 1f / o.batch;
@@ -133,6 +149,32 @@ public final class Trainer {
         System.out.printf("saved %s (%.2f MiB, %.1fs, final loss %.4f)%n",
                 o.out, size / 1048576.0, secs, lastLoss);
         System.out.println("run it with: ./runner.sh --model " + o.out);
+    }
+
+    /** Indices (into the token array) where a line starts with "user:". */
+    private static int[] findTurnStarts(int[] corpus) {
+        byte[] key = "user:".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+        int[] out = new int[1024];
+        int count = 0;
+        for (int i = 1; i + key.length < corpus.length - 1; i++) {
+            if (i > 1 && corpus[i - 1] != '\n') {
+                continue;
+            }
+            boolean match = true;
+            for (int k = 0; k < key.length; k++) {
+                if (corpus[i + k] != key[k]) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                if (count == out.length) {
+                    out = java.util.Arrays.copyOf(out, count * 2);
+                }
+                out[count++] = i;
+            }
+        }
+        return java.util.Arrays.copyOf(out, count);
     }
 
     private static byte[] sha256(byte[] bytes) {

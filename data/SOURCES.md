@@ -30,3 +30,15 @@ noncommercial share-alike material. See [MINECRAFT-NOTICE.md](MINECRAFT-NOTICE.m
 for attribution and usage terms. Obtain separate permission before any
 commercial use. `eto-vocab.txt` is included only after token IDs and special
 symbols are removed; its word list receives a single low-weight section.
+
+## Conversation and story datasets (added for the generative chat model)
+
+Downloaded by `data/fetch_datasets.py` and converted by `data/convert_external.py`:
+
+- Stanford Alpaca, cleaned by gururise (CC BY-NC 4.0): short instruction/response turns.
+- ChatterBot English corpus (gunthercox/chatterbot-corpus, BSD-3-Clause): small talk and bot profile.
+- DailyDialog (Li et al., CC BY-NC-SA 4.0): everyday multi-turn conversations.
+- TinyStories (Eldan and Li, CDLA-Sharing-1.0): simple, fluent English stories.
+- Tiny Shakespeare (karpathy/char-rnn): plays.
+
+Most are noncommercial; treat the trained model as noncommercial material.

@@ -28,13 +28,18 @@ public final class Chat {
         float temp = a.flag("greedy") ? 0f : a.getFloat("temp", 0.8f);
         int topK = a.getInt("top-k", 40);
         float topP = a.getFloat("top-p", 0.95f);
-        float repeat = a.getFloat("repeat", 1.1f);
+        float repeat = a.getFloat("repeat", -1f);
         long seed = a.getLong("seed", 42);
         String system = a.get("system", "");
         String oneShot = a.has("prompt") ? a.get("prompt") : null;
 
         try (LlamaModel model = LlamaModel.open(modelPath)) {
             int ctx = ctxArg > 0 ? Math.min(ctxArg, model.cfg.ctxLen) : Math.min(model.cfg.ctxLen, 1024);
+            if (repeat < 0f) {
+                // A byte-level model (vocab ~258) must not use a repetition penalty: every letter
+                // is in the recent window, so the penalty just distorts the character stream.
+                repeat = model.tokenizer.vocabSize() <= 300 ? 1.0f : 1.1f;
+            }
             String templateName = a.get("template", "auto");
             if ("auto".equalsIgnoreCase(templateName)
                     && "Eto".equalsIgnoreCase(model.reader.getString("general.name", ""))) {
@@ -178,7 +183,7 @@ public final class Chat {
                 // stdout closed
             }
             captured.write(bytes, 0, bytes.length);
-        });
+        }, template == ChatTemplate.Kind.ETO ? new String[] {"\nuser:", "\n\n", "\nEto:"} : new String[0]);
 
         List<ChatTemplate.Turn> next = new ArrayList<>(working);
         next.add(new ChatTemplate.Turn(user, result.text()));
@@ -212,7 +217,7 @@ public final class Chat {
                   --temp F         temperature (default 0.8)
                   --top-k N        top-k (default 40)
                   --top-p F        nucleus (default 0.95)
-                  --repeat F       repetition penalty (default 1.1)
+                  --repeat F       repetition penalty (default 1.1; 1.0 for byte-level models)
                   --seed N         RNG seed (default 42)
                   --system TEXT    system prompt
                   --template NAME  auto|none|chatml|llama2|llama3|zephyr|alpaca|raw
