@@ -80,26 +80,26 @@ jobs:
         run: |
           set -euo pipefail
           questions=(
-            $'user: what is a noun\n\nEto:'
-            $'user: what is a verb\n\nEto:'
-            $'user: fix this: she do not run\n\nEto:'
-            $'user: should i say dogs run or dogs runs\n\nEto:'
-            $'user: what is the difference between your and you are\n\nEto:'
-            $'user: should i say an hour or a hour\n\nEto:'
-            $'user: what is a comma splice\n\nEto:'
-            $'user: what is the past tense of go\n\nEto:'
-            $'user: what is minecraft\n\nEto:'
-            $'user: what is java edition\n\nEto:'
-            $'user: what does redstone do\n\nEto:'
-            $'user: what is a crafting table used for\n\nEto:'
-            $'user: what is the nether\n\nEto:'
-            $'user: what is a villager\n\nEto:'
-            $'user: what is survival mode\n\nEto:'
-            $'user: how do you craft a pickaxe\n\nEto:'
+            "what is a noun"
+            "what is a verb"
+            "fix this: she do not run"
+            "should i say dogs run or dogs runs"
+            "what is the difference between your and you are"
+            "should i say an hour or a hour"
+            "what is a comma splice"
+            "what is the past tense of go"
+            "what is minecraft"
+            "what is java edition"
+            "what does redstone do"
+            "what is a crafting table used for"
+            "what is the nether"
+            "what is a villager"
+            "what is survival mode"
+            "how do you craft a pickaxe"
           )
           for index in "${!questions[@]}"; do
             printf '\n[%02d/16] %s\n' "$((index + 1))" "${questions[index]}"
-            ./generate.sh --model models/eto.gguf --prompt "${questions[index]}" --ctx 256 --tokens 96 --temp 0.7 --seed "$index"
+            ./runner.sh --model models/eto.gguf --prompt "${questions[index]}" --ctx 256 --tokens 96 --temp 0.7 --seed "$index"
           done
 
       - name: Save checkpoint for the next run

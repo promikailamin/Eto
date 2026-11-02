@@ -64,6 +64,8 @@ GitHub Actions workflow runs on relevant pushes or manual dispatch, restores its
 previous checkpoint from the Actions cache, and uploads the trained GGUF as an
 artifact. It uses balanced excerpts from the included Project Gutenberg books,
 grammar and conversation corpora, Minecraft knowledge, and the Eto vocabulary.
+The chat runner automatically uses the matching `user:` / `Eto:` prompt format
+for models whose GGUF name is `Eto`.
 The Minecraft sources are CC BY-NC-SA 3.0; treat the resulting corpus and
 trained artifact as noncommercial share-alike material. See
 `data/MINECRAFT-NOTICE.md` before redistributing or using the artifact. This is

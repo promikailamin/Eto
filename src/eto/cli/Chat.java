@@ -35,9 +35,14 @@ public final class Chat {
 
         try (LlamaModel model = LlamaModel.open(modelPath)) {
             int ctx = ctxArg > 0 ? Math.min(ctxArg, model.cfg.ctxLen) : Math.min(model.cfg.ctxLen, 1024);
+            String templateName = a.get("template", "auto");
+            if ("auto".equalsIgnoreCase(templateName)
+                    && "Eto".equalsIgnoreCase(model.reader.getString("general.name", ""))) {
+                templateName = "eto";
+            }
             ChatTemplate.Kind template = a.flag("raw")
                     ? ChatTemplate.Kind.RAW
-                    : ChatTemplate.parse(a.get("template", "auto"), model.tokenizer,
+                    : ChatTemplate.parse(templateName, model.tokenizer,
                             model.reader.getString("tokenizer.chat_template", null));
 
             System.out.println("model    : " + modelPath);

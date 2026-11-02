@@ -7,7 +7,7 @@ import java.util.List;
 /** Small, dependency-free chat prompt templates. */
 public final class ChatTemplate {
     public enum Kind {
-        NONE, CHATML, LLAMA2, LLAMA3, ZEPHYR, ALPACA, RAW
+        ETO, NONE, CHATML, LLAMA2, LLAMA3, ZEPHYR, ALPACA, RAW
     }
 
     public record Turn(String user, String assistant) {
@@ -25,6 +25,7 @@ public final class ChatTemplate {
             return auto(tok, chatTemplate);
         }
         return switch (name.toLowerCase()) {
+            case "eto" -> Kind.ETO;
             case "none" -> Kind.NONE;
             case "chatml", "qwen" -> Kind.CHATML;
             case "llama2", "mistral" -> Kind.LLAMA2;
@@ -72,6 +73,7 @@ public final class ChatTemplate {
 
     public static String build(Kind kind, String system, List<Turn> turns, String user) {
         return switch (kind) {
+            case ETO -> eto(system, turns, user);
             case RAW -> user;
             case CHATML -> chatml(system, turns, user);
             case LLAMA2 -> llama2(system, turns, user);
@@ -80,6 +82,19 @@ public final class ChatTemplate {
             case ALPACA -> alpaca(system, turns, user);
             case NONE -> plain(system, turns, user);
         };
+    }
+
+    private static String eto(String system, List<Turn> turns, String user) {
+        StringBuilder sb = new StringBuilder();
+        if (system != null && !system.isBlank()) {
+            sb.append("system: ").append(system).append("\n\n");
+        }
+        for (Turn turn : turns) {
+            sb.append("user: ").append(turn.user()).append("\n");
+            sb.append("Eto: ").append(turn.assistant()).append("\n\n");
+        }
+        sb.append("user: ").append(user).append("\nEto:");
+        return sb.toString();
     }
 
     private static String chatml(String system, List<Turn> turns, String user) {
