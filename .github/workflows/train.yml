@@ -59,6 +59,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .training
+          chmod +x build.sh
+          chmod +x trainer.sh
           resume_args=()
           if [[ -f .training/checkpoint.bin ]]; then
             resume_args+=(--resume .training/checkpoint.bin)
